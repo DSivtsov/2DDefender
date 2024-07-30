@@ -1,12 +1,15 @@
+using System;
 using GameEngine.UI;
 using Modules.GameManager;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace GameEngine.GameMaster
 {
     public class GameMaster : MonoBehaviour, IGameStartListener
     {
+        public event Action<int> OnChangeEnemyNumber ;
         [SerializeField] private bool _randomNumberEnemies;
         [SerializeField, HideIf("_randomNumberEnemies")] private int _numberEnemies;
         
@@ -30,6 +33,7 @@ namespace GameEngine.GameMaster
             RestartGameMaster();
             if (_randomNumberEnemies) 
                 _numberEnemies = GetTargetNumberKilledEnemies();
+            OnChangeEnemyNumber?.Invoke(_numberEnemies);
         }
 
         private int GetTargetNumberKilledEnemies() => Random.Range(_minNumberEnemies, _maxNumberEnemies + 1);
@@ -48,7 +52,7 @@ namespace GameEngine.GameMaster
         public void KilledEnemy()
         {
             _killedEnemies++;
-            
+            OnChangeEnemyNumber?.Invoke(_numberEnemies - _killedEnemies);
             if (_killedEnemies >= _numberEnemies )
             {
                 _gameManager.FinishGame();

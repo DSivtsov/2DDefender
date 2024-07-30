@@ -5,7 +5,16 @@ namespace GameEngine.UI
 {
     public sealed class UIModule : ModuleBase
     {
-        [SerializeField, Listener]
-        private HealthViewAdapter healthViewAdapter;
+        [SerializeField, Service]
+        private HealthView healthView;
+        
+        [Listener]
+        private HealthViewAdapter healthViewAdapter = new HealthViewAdapter();
+        
+        [SerializeField, Service]
+        private EnemyView enemyView;
+        
+        [Listener]
+        private EnemyViewAdapter enemyViewAdapter = new EnemyViewAdapter();
     }
 }

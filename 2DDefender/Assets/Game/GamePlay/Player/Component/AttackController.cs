@@ -14,7 +14,8 @@ namespace GamePlay.Player
     }
     
     [Serializable]
-    internal sealed class AttackController : IGameInitListener, IGameFixedUpdateListener, IAttackController
+    internal sealed class AttackController : IGameInitListener, IGameFixedUpdateListener, IAttackController,
+        IGameStartListener,IGameFinishListener
     {
         public event Action<bool> OnShooting;
         public Vector3 ShootDirection => _shootDirection;
@@ -35,7 +36,8 @@ namespace GamePlay.Player
         private float _sqrtShootDistance;
         private GameObject _closestEnemy;
         private Timer _fireCountdown;
-        
+        private AnimationEventListener _animationEventListener;
+
         [Inject]
         internal void Construct(PlayerObject playerObject, BulletLifeController bulletSpawner, EnemyActiveTracker enemyActiveTracker)
         {
@@ -44,12 +46,30 @@ namespace GamePlay.Player
             _bulletSpawner = bulletSpawner;
             _speedBullet = _bulletPlayerConfig.BulletSpeed;
             _sqrtShootDistance = _shootDistance * _shootDistance;
+            _animationEventListener = _playerObject.GetComponent<AnimationEventListener>();
         }
 
         void IGameInitListener.OnInit()
         {
             _playerWeapon = _playerObject.GetComponent<Weapon>();
             _fireCountdown = new Timer(_shootDelay, Time.fixedDeltaTime);
+            
+        }
+
+        void IGameStartListener.OnStartGame()
+        {
+            _animationEventListener.OnMessageReceived += AnimationEvent;
+        }
+
+        void IGameFinishListener.OnFinishGame()
+        {
+            _animationEventListener.OnMessageReceived -= AnimationEvent;
+        }
+
+        private void AnimationEvent(string animationEvent)
+        {
+            if (animationEvent == "fireEnd_event") 
+                OnShooting?.Invoke(false);
         }
 
         void IGameFixedUpdateListener.OnFixedUpdate(float _)
@@ -86,7 +106,7 @@ namespace GamePlay.Player
             
             if (_shootDirection != Vector3.zero)
             {
-                //OnShooting?.Invoke(true);
+                OnShooting?.Invoke(true);
                 Vector2 vectorVelocityNorm = _shootDirection.normalized;
                 _bulletSpawner.ShootBullet(_bulletPlayerConfig, _aimingPosition, vectorVelocityNorm);
                 

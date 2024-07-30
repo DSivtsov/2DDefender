@@ -22,12 +22,10 @@ namespace GamePlay.Player
         public void TurnRifleOnTarget()
         {
             _transformRifle.rotation = GetAngleShoot();
-            Debug.Log($"TurnRifleOnTarget[{_transformRifle.rotation.eulerAngles.z}]");
         }
 
         public void TurnRifleOnIdle()
         {
-            Debug.Log("TurnRifleOnIdle");
             _transformRifle.rotation = Quaternion.identity;
         }
 

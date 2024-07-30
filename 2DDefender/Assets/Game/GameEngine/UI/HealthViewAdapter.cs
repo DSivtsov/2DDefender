@@ -5,21 +5,16 @@ using UnityEngine;
 
 namespace GameEngine.UI
 {
-    public class HealthViewAdapter : MonoBehaviour, IGameInitListener, IGameStartListener, IGameFinishListener
+    public class HealthViewAdapter : IGameInitListener, IGameStartListener, IGameFinishListener
     {
         private HealthView _healthView;
         private IDamageable _iDamageable;
 
-        private void Awake()
-        {
-            _healthView = GetComponent<HealthView>();
-            SetHealth(0);
-        }
-        
         [Inject]
-        public void Constructor (PlayerObject playerObject)
+        public void Constructor (PlayerObject playerObject, HealthView healthView)
         {
             _iDamageable = playerObject.GetComponent<IDamageable>();
+            _healthView = healthView;
         }
 
         void IGameInitListener.OnInit()
