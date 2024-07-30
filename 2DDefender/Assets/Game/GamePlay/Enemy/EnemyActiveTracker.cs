@@ -7,31 +7,32 @@ using UnityEngine;
 namespace GamePlay.Enemy
 {
     internal sealed class EnemyActiveTracker : IGameFixedUpdateListener
-    {        
-        private Dictionary<GameObject, IEnemyFixUpdateListeners[]> _dictActiveEnemies;
+    {
+        public GameObject[] Enemies => _cacheEnemies;
         
-        [Inject]
-        internal void Construct(EnemySpawnController enemySpawnController)
-        {
-            _dictActiveEnemies = new Dictionary<GameObject, IEnemyFixUpdateListeners[]>(enemySpawnController.MaximumNumEnemies);
-        }
+        private readonly Dictionary<GameObject, IEnemyFixUpdateListeners[]> _dictActiveEnemies = new ();
+
+        private IEnemyFixUpdateListeners[] _cacheEnemyFixUpdateListeners;
+        private GameObject[] _cacheEnemies;
 
         void IGameFixedUpdateListener.OnFixedUpdate(float fixedDeltaTime)
         {
-            foreach (IEnemyFixUpdateListeners[] fixUpdateListeners in _dictActiveEnemies.Select(enemyPair => enemyPair.Value))
-            {
-                foreach (var listener in fixUpdateListeners)
-                    listener.OnFixedUpdate(fixedDeltaTime);
-            }
+            foreach (var listener in _cacheEnemyFixUpdateListeners)
+                listener.OnFixedUpdate(fixedDeltaTime);
         }
 
+        private int _count = 0;
         internal void AddEnemyToActiveList(GameObject enemy)
         {
             if (_dictActiveEnemies.ContainsKey(enemy))
                 throw new NotSupportedException("Attempt to add enemy to Active list which exist in the list");
-
+            
+            enemy.name = $"Bomber_{_count++}";
+            
             IEnemyFixUpdateListeners[] fixUpdateListeners = enemy.GetComponents<IEnemyFixUpdateListeners>();
             _dictActiveEnemies.Add(enemy, fixUpdateListeners ?? Array.Empty<IEnemyFixUpdateListeners>());
+            
+            UpdateCaches();
         }
 
         internal void RemoveEnemyFromActiveList(GameObject enemy)
@@ -40,6 +41,14 @@ namespace GamePlay.Enemy
                 throw new NotSupportedException("Attempt to del enemy from Active list which doesn't exist in the list");
             
             _dictActiveEnemies.Remove(enemy);
+
+            UpdateCaches();
+        }
+
+        private void UpdateCaches()
+        {
+            _cacheEnemyFixUpdateListeners = _dictActiveEnemies.Values.SelectMany(i => i).ToArray();
+            _cacheEnemies = _dictActiveEnemies.Keys.ToArray();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using GameEngine.Common;
+using UnityEngine;
 using Zenject;
 
 namespace GamePlay.Enemy
@@ -8,11 +9,13 @@ namespace GamePlay.Enemy
         [SerializeField] private GameObject _prefabEnemy;
         [SerializeField] private Transform _transformPoolEnemy;
         [SerializeField] private int _enemyPoolCount = 10;
-        [SerializeField] private EnemyGeneratorPositions _generatorPositions;
+        [SerializeField] private EnemySpawnPositions _generatorPositions;
         public override void InstallBindings()
         {
-            Container.BindFactory<GameObject, EnemyObjectInPool, EnemyObjectInPool.Factory>()
-                .WithFactoryArguments(_generatorPositions)
+            int hitPoints = _prefabEnemy.GetComponent<IDamageable>().HitPoints;
+            
+            Container.BindFactory<GameObject, float, EnemyObjectInPool, EnemyObjectInPool.Factory>()
+                .WithFactoryArguments(_generatorPositions, hitPoints)
                 .FromMonoPoolableMemoryPool(x =>
                 {
                     x

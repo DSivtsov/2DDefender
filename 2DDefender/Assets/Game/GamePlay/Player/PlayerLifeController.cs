@@ -1,4 +1,5 @@
 using GameEngine.Common;
+using GameEngine.GameMaster;
 using UnityEngine;
 using Modules.GameManager;
 
@@ -6,14 +7,14 @@ namespace GamePlay.Player
 {
     internal sealed class PlayerLifeController : IGameStartListener, IGameFinishListener, IGameInitListener
     {
-        private GameManager _gameManager;
         private PlayerObject _playerObject;
         private IDamageable _damageable;
+        private GameMaster _gameMaster;
 
         [Inject]
-        internal void Construct(GameManager gameManager, PlayerObject playerObject)
+        internal void Construct(PlayerObject playerObject, GameMaster gameMaster)
         {
-            _gameManager = gameManager;
+            _gameMaster = gameMaster;
             _playerObject = playerObject;
         }
 
@@ -24,7 +25,7 @@ namespace GamePlay.Player
 
         private void OnCharacterDeath(GameObject _)
         {
-            _gameManager.FinishGame();
+            _gameMaster.CharacterDeath();
         }
     } 
 }

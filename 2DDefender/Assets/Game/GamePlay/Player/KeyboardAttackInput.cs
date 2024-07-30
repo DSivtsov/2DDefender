@@ -4,7 +4,7 @@ using Modules.GameManager;
 
 namespace GamePlay.Player
 {
-    internal sealed class KeyboardAttackInput : IGameUpdateListener, IAttackInput
+    internal sealed class KeyboardAttackInput : IGameUpdateListener //, IAttackInput
     {
         public event Action OnFireRequired;
 

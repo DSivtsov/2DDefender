@@ -8,6 +8,8 @@ namespace GameEngine.Bullet
     )]
     public sealed class BulletConfigSO : ScriptableObject
     {
+        public float BulletSpeed => speed;
+        
         [SerializeField] internal PhysicsLayer physicsLayer;
         [SerializeField] internal Color color;
         [SerializeField] internal int damage;

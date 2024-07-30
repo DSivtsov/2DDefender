@@ -1,50 +1,35 @@
 using System;
 using UnityEngine;
-using GameEngine.Common;
-using GamePlay.Common;
 
 namespace GamePlay.Enemy
 {
     internal sealed class EnemyAttackController : MonoBehaviour, IEnemyFixUpdateListeners
     {
-        [SerializeField] private Weapon _weapon;
-        [SerializeField] private EnemyMoveController enemyMoveAgent;
-        [SerializeField] private float _countdown;
+        internal event Action<GameObject, GameObject> OnHitWall;
 
+        private Collider2D _colliderAttacker;
+        private Collider2D _wallCollider;
         private GameObject _target;
-        private float _currentTime;
-        internal event Action<Vector2, Vector2> OnFire;
 
-        internal void SetTarget(GameObject target) => _target = target;
+        internal void SetTarget(GameObject target)
+        {
+            _target = target;
+            _wallCollider = _target.GetComponent<CompositeCollider2D>();
+        }
 
         private void Awake()
         {
-            _currentTime = _countdown;
+            _colliderAttacker = GetComponent<Collider2D>();
         }
 
-        void IEnemyFixUpdateListeners.OnFixedUpdate(float fixedDeltaTime) => EnemyFireController(fixedDeltaTime);
+        void IEnemyFixUpdateListeners.OnFixedUpdate(float _) => EnemyHitWallController();
 
-        private void EnemyFireController(float fixedDeltaTime)
+        private void EnemyHitWallController()
         {
-            if (enemyMoveAgent.IsReached)
+            if (_colliderAttacker.IsTouching(_wallCollider))
             {
-                if (_target.GetComponent<IDamageable>().IsNotDied)
-                {
-                    _currentTime -= fixedDeltaTime;
-                    if (!PassCountDown) return;
-                    Fire();
-                    _currentTime += _countdown;
-                }
+                OnHitWall?.Invoke(_target, gameObject);
             }
-        }
-
-        private bool PassCountDown => _currentTime <= 0;
-
-        private void Fire()
-        {
-            Vector2 startPosition = _weapon.Position;
-            Vector2 vectorVelocityNorm = ((Vector2)_target.transform.position - startPosition).normalized;
-            OnFire?.Invoke(startPosition, vectorVelocityNorm);
         }
     } 
 }

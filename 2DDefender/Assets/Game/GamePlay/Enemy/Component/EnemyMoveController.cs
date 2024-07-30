@@ -1,28 +1,21 @@
 using UnityEngine;
-using GamePlay.Common;
+using Sirenix.OdinInspector;
 
 namespace GamePlay.Enemy
 {
     internal sealed class EnemyMoveController : MonoBehaviour, IEnemyFixUpdateListeners
     {
-        internal bool IsReached { get; private set; } = false;
+        [ShowInInspector,ReadOnly] private float _speed = 2f;
+        private Rigidbody2D _rigidbodyObj;
 
-        private Moveable _enemyMoveable;
-
-        private Vector2 _destination;
-
+        public float EnemySpeed => _speed;
+        
         private void Awake()
         {
-            _enemyMoveable = GetComponent<Moveable>();
-            if (!_enemyMoveable)
-                throw new System.NotSupportedException("Not Found Moveable");
+            _rigidbodyObj = GetComponent<Rigidbody2D>();
         }
 
-        internal void SetDestination(Vector2 endPoint)
-        {
-            _destination = endPoint;
-            IsReached = false;
-        }
+        private Vector2 _destination;
 
         void IEnemyFixUpdateListeners.OnFixedUpdate(float fixedDeltaTime)
         {
@@ -31,17 +24,10 @@ namespace GamePlay.Enemy
 
         private void MoveEnemyRigidbody(float fixedDeltaTime)
         {
-            if (!IsReached)
-            {
-                Vector2 vector = _destination - (Vector2) transform.position;
-                if (vector.magnitude <= 0.25f)
-                {
-                    IsReached = true;
-                    return;
-                }
-                Vector2 direction = vector.normalized * fixedDeltaTime;
-                _enemyMoveable.MoveRigidbody(direction);
-            }
+            Vector2 newPosition = _rigidbodyObj.position + fixedDeltaTime * _speed * Vector2.down;
+            _rigidbodyObj.MovePosition(newPosition);
         }
+
+        public void SetEnemySpeed(float speed) => _speed = speed;
     }
 }

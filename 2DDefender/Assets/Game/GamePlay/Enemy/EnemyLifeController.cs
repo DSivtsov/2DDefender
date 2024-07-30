@@ -1,36 +1,38 @@
 using System;
+using GameEngine.GameMaster;
 using UnityEngine;
 using Modules.GameManager;
-using GameEngine.Bullet;
 using GamePlay.Player;
+using Sirenix.OdinInspector;
+using Random = UnityEngine.Random;
 
 namespace GamePlay.Enemy
 {
     [Serializable]
-    internal sealed class EnemyLifeController
+    public sealed class EnemyLifeController
     {
         [Header("Spawn")]
         [SerializeField] private Transform _worldTransform;
-        [SerializeField] private BulletConfigSO _bulletEnemyConfig;
-        
         private EnemyObjectInPool.Factory _enemyPoolFactory;
-        private BulletLifeController _bulletSpawner;
         private EnemyActiveTracker _enemyTracker;
-        private PlayerObject _playerObject;
-        
+        private DefendedWallObject _defendedWallObject;
+        private GameMaster _gameMaster;
+        private EnemyRandomSpeed _enemyRandomSpeed;
+
         [Inject]
-        internal void Construct(EnemyObjectInPool.Factory enemyPoolFactory, BulletLifeController bulletSpawner,
-            PlayerObject playerObject,EnemyActiveTracker enemyTracker)
+        internal void Construct(EnemyObjectInPool.Factory enemyPoolFactory, EnemyActiveTracker enemyTracker,
+            DefendedWallObject defendedWallObject, GameMaster gameMaster, EnemyRandomSpeed enemyRandomSpeed)
         {
-            _playerObject = playerObject;
+            _enemyRandomSpeed = enemyRandomSpeed;
+            _gameMaster = gameMaster;
+            _defendedWallObject = defendedWallObject;
             _enemyPoolFactory = enemyPoolFactory;
-            _bulletSpawner = bulletSpawner;
             _enemyTracker = enemyTracker;
         }
 
         internal void SpawnEnemy()
         {
-            EnemyObjectInPool enemy = _enemyPoolFactory.Create(_playerObject.gameObject);
+            EnemyObjectInPool enemy = _enemyPoolFactory.Create(_defendedWallObject.Wall, _enemyRandomSpeed.GetRandomSpeed());
             enemy.transform.SetParent(_worldTransform);
 
             ConnectEnemyToAgents(enemy);
@@ -40,26 +42,43 @@ namespace GamePlay.Enemy
         private void ConnectEnemyToAgents(EnemyObjectInPool enemy)
         {
             enemy.DamageableController.OnDied += Destroy;
-            enemy.AttackController.OnFire += Fire;
+            enemy.DamageableController.OnDied += CountKilledEnemies;
+            enemy.AttackController.OnHitWall += HitWall;
         }
 
         private void DisconnectEnemyFromAgents(EnemyObjectInPool enemy)
         {
             enemy.DamageableController.OnDied -= Destroy;
-            enemy.AttackController.OnFire -= Fire;
+            enemy.DamageableController.OnDied -= CountKilledEnemies;
+            enemy.AttackController.OnHitWall -= HitWall;
         }
 
-        private void Fire(Vector2 position, Vector2 vectorVelocityNorm)
+        private void CountKilledEnemies(GameObject _) => _gameMaster.KilledEnemy();
+
+        private void HitWall(GameObject target, GameObject enemyObject)
         {
-            _bulletSpawner.ShootBullet(_bulletEnemyConfig, position, vectorVelocityNorm);
+            BlowUP(enemyObject);
+            _defendedWallObject.HitWallBlowUp();
         }
 
+        private void BlowUP(GameObject enemyObject)
+        {
+            Debug.LogWarning("BlowUp");
+            Destroy(enemyObject);
+        }
+        
         private void Destroy(GameObject enemyObject)
         {
             EnemyObjectInPool enemy = enemyObject.GetComponent<EnemyObjectInPool>();
             DisconnectEnemyFromAgents(enemy);
             enemy.Dispose();
             _enemyTracker.RemoveEnemyFromActiveList(enemyObject);
+        }
+
+        public void DestroyAllEnemiesObject()
+        {
+            foreach (GameObject gameObjectEnemy in _enemyTracker.Enemies)
+                Destroy(gameObjectEnemy);
         }
     }
 }

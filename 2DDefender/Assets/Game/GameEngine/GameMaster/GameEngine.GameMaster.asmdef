@@ -1,0 +1,17 @@
+{
+    "name": "GameEngine.GameMaster",
+    "rootNamespace": "",
+    "references": [
+        "GUID:eab9419e174d4e742b988ac3cf908748",
+        "GUID:5c54891869ec1444fa1ee60de223e53e"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

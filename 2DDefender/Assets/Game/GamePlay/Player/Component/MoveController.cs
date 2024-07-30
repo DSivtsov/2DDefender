@@ -8,43 +8,62 @@ namespace GamePlay.Player
 {
     internal interface IMoveInput
     {
-        event Action<float> OnSetMoveDirection;
+        event Action<Vector2> OnSetMoveDirection;
     }
     
-    internal sealed class MoveController : IGameInitListener, IGameStartListener, IGameFinishListener, IGameFixedUpdateListener
+    [RequireComponent(typeof(Rigidbody2D))]
+    internal sealed class MoveController : MonoBehaviour, IGameInitListener, IGameStartListener, IGameFinishListener, IGameFixedUpdateListener
     {
+        [SerializeField] private float _speed = 5f;
+        
+        private Rigidbody2D _rigidbodyObj;
         private IMoveInput _iInput;
-        private PlayerObject _playerObject;
-        private Moveable _playerMoveable;
-        private float _horizontalCurrentMoveDirection;
-        private ScreenBounds _screenBounds;
-        private Func<Vector2, bool> _newPositionIsAcceptableToMove;
+        private IAttackController _attackController;
+        private Vector2 _currentMoveDirection;
+        private bool _isShooting;
+        void IGameInitListener.OnInit() =>  _rigidbodyObj = GetComponent<Rigidbody2D>();
 
         [Inject]
-        internal void Construct(IMoveInput iInput, ScreenBounds screenBounds, PlayerObject playerSpawner)
+        internal void Construct(IMoveInput iInput, IAttackController attackController)
         {
+            _attackController = attackController;
             _iInput = iInput;
-            _playerObject = playerSpawner;
-            _screenBounds = screenBounds;
-            _newPositionIsAcceptableToMove = (Vector2 newPosition) => _screenBounds.InHorizontalBounds(newPosition.x);
         }
 
-        void IGameInitListener.OnInit() => _playerMoveable = _playerObject.GetComponent<Moveable>();
-
-        void IGameStartListener.OnStartGame() => _iInput.OnSetMoveDirection += SetMoveDirection;
-
-        void IGameFinishListener.OnFinishGame() => _iInput.OnSetMoveDirection -= SetMoveDirection;
-
-        //Call in Update Cycle
-        private void SetMoveDirection(float horizontalDirection)
+        void IGameStartListener.OnStartGame()
         {
-            _horizontalCurrentMoveDirection = horizontalDirection;
+            _iInput.OnSetMoveDirection += SetMoveDirection;
+            _attackController.OnShooting += Shooting;
         }
 
-        void IGameFixedUpdateListener.OnFixedUpdate(float fixedDeltaTime)
+        void IGameFinishListener.OnFinishGame()
         {
-            Vector2 offsetMoveRigidbody = new Vector2(_horizontalCurrentMoveDirection, 0) * fixedDeltaTime;
-            _playerMoveable.CheckNewPositionBeforeMoveRigidbody(offsetMoveRigidbody, _newPositionIsAcceptableToMove);
+            _iInput.OnSetMoveDirection -= SetMoveDirection;
+            _attackController.OnShooting -= Shooting;
+            
+            _rigidbodyObj.velocity = Vector2.zero;
+        }
+
+        private void Shooting(bool active)
+        {
+            _isShooting = active;
+        }
+
+        private void SetMoveDirection(Vector2 direction)
+        {
+            _currentMoveDirection = direction;
+        }
+
+        void IGameFixedUpdateListener.OnFixedUpdate(float _)
+        {
+            if (_isShooting)
+            {
+                _rigidbodyObj.velocity = Vector2.zero;
+            }
+            else
+            {
+                _rigidbodyObj.velocity = _currentMoveDirection * _speed;
+            }
         }
     }
 }

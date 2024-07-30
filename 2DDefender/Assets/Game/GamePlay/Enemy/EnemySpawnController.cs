@@ -2,22 +2,20 @@
 using System.Collections;
 using Asyncoroutine;
 using Modules.GameManager;
+using Sirenix.OdinInspector;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace GamePlay.Enemy
 {
     [Serializable]
     internal sealed class EnemySpawnController : IGameStartListener, IGameFinishListener
     {
-        [SerializeField] private int _maximumNumEnemies = 3;
-        [SerializeField] private float _delayBetweenSpawn = 1f;
-        [Tooltip("Delay after died of first enemy before start Respawn")]
-        [SerializeField] private float _delaySpawnAfterDiedFirst = 3f;
+        [MinMaxSlider(1, 10, true)]
+        [SerializeField] private Vector2 _delaySpawnMinMax = new Vector2(1,2);
 
         private EnemyLifeController _enemySpawner;
         private bool _continueEnemySpawning;
-        internal int MaximumNumEnemies => _maximumNumEnemies;
-
 
         [Inject]
         internal void Construct(EnemyLifeController enemySpawner)
@@ -34,22 +32,19 @@ namespace GamePlay.Enemy
         void IGameFinishListener.OnFinishGame()
         {
             _continueEnemySpawning = false;
+
+            _enemySpawner.DestroyAllEnemiesObject();
         }
 
         private IEnumerator ContinuouslySpawnEnemy()
         {
             do
             {
-                if (EnemyObjectInPool.PoolNumActive < _maximumNumEnemies)
-                {
-                    _enemySpawner.SpawnEnemy();
-                    yield return new WaitForSeconds(_delayBetweenSpawn);
-                }
-                else
-                {
-                    yield return new WaitForSeconds(_delaySpawnAfterDiedFirst);
-                }
+                _enemySpawner.SpawnEnemy();
+                yield return new WaitForSeconds(GetNextSpawnDelay());
             } while (_continueEnemySpawning);
         }
+
+        private float GetNextSpawnDelay() => Random.Range(_delaySpawnMinMax.x, _delaySpawnMinMax.y);
     }
 }
