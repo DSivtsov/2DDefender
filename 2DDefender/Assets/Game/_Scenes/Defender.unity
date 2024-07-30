@@ -3094,11 +3094,6 @@ TilemapCollider2D:
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
   m_UseDelaunayMesh: 0
---- !u!1 &1043750882 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8503080104634864058, guid: 597f6477c3357494da5db434ad5e45ee, type: 3}
-  m_PrefabInstance: {fileID: 3769021926251974186}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1059504140
 GameObject:
   m_ObjectHideFlags: 0
@@ -7698,10 +7693,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6868052213480967960, guid: 597f6477c3357494da5db434ad5e45ee, type: 3}
-      propertyPath: _hitPoints
-      value: 10
-      objectReference: {fileID: 0}
     - target: {fileID: 8503080104634864058, guid: 597f6477c3357494da5db434ad5e45ee, type: 3}
       propertyPath: m_Name
       value: Rifleman
@@ -7709,10 +7700,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8503080104634864058, guid: 597f6477c3357494da5db434ad5e45ee, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3769021926251974214}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 597f6477c3357494da5db434ad5e45ee, type: 3}
 --- !u!4 &3769021926251974187 stripped
 Transform:
@@ -7724,7 +7712,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7912453301551227285, guid: 597f6477c3357494da5db434ad5e45ee, type: 3}
   m_PrefabInstance: {fileID: 3769021926251974186}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1043750882}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a47c968e08904929b0ef5e4a7cdd84ed, type: 3}
@@ -7735,7 +7723,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1840740442382052616, guid: 597f6477c3357494da5db434ad5e45ee, type: 3}
   m_PrefabInstance: {fileID: 3769021926251974186}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1043750882}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a33019608a078574fa78272a031d763e, type: 3}
@@ -7746,25 +7734,12 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2215781674809050817, guid: 597f6477c3357494da5db434ad5e45ee, type: 3}
   m_PrefabInstance: {fileID: 3769021926251974186}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1043750882}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 49bd29cfce42945bdb160d8cc15d8a99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3769021926251974214
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1043750882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf6ad79a76dc4fc69ee0b7fbbd807082, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  events: []
 --- !u!4 &3785848053702478606
 Transform:
   m_ObjectHideFlags: 0
@@ -7930,9 +7905,10 @@ MonoBehaviour:
   enemySpawnController:
     _delaySpawnMinMax: {x: 1.3483152, y: 6.7415733}
   enemyRandomSpeed:
-    _speedMinMax: {x: 2.9160185, y: 3.9051323}
+    _speedMinMax: {x: 1.781074, y: 2.7769432}
   enemyLifeController:
     _worldTransform: {fileID: 6605060384369515418}
+    _grenade: {fileID: 3689773310681457638, guid: 29b5c56732d179c4b961da9226abbc2b, type: 3}
 --- !u!114 &5026859948407575829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8062,7 +8038,7 @@ MonoBehaviour:
   attackPlayerController:
     _bulletPlayerConfig: {fileID: 11400000, guid: e13237176e437a145a58c4643a5fbf8f, type: 2}
     _shootDistance: 25
-    _shootDelay: 2.25
+    _shootDelay: 2.72
   moveController: {fileID: 3769021926251974207}
   rotateRifle: {fileID: 3769021926251974201}
   defendedWallObject: {fileID: 1184154130}

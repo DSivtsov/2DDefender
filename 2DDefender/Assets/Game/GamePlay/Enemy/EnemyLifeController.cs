@@ -1,10 +1,9 @@
 using System;
+using Asyncoroutine;
 using GameEngine.GameMaster;
 using UnityEngine;
 using Modules.GameManager;
 using GamePlay.Player;
-using Sirenix.OdinInspector;
-using Random = UnityEngine.Random;
 
 namespace GamePlay.Enemy
 {
@@ -13,11 +12,14 @@ namespace GamePlay.Enemy
     {
         [Header("Spawn")]
         [SerializeField] private Transform _worldTransform;
+
+        [SerializeField] private GameObject _grenade;
         private EnemyObjectInPool.Factory _enemyPoolFactory;
         private EnemyActiveTracker _enemyTracker;
         private DefendedWallObject _defendedWallObject;
         private GameMaster _gameMaster;
         private EnemyRandomSpeed _enemyRandomSpeed;
+        private WaitForSeconds _waitForSeconds;
 
         [Inject]
         internal void Construct(EnemyObjectInPool.Factory enemyPoolFactory, EnemyActiveTracker enemyTracker,
@@ -28,6 +30,7 @@ namespace GamePlay.Enemy
             _defendedWallObject = defendedWallObject;
             _enemyPoolFactory = enemyPoolFactory;
             _enemyTracker = enemyTracker;
+            _waitForSeconds = new WaitForSeconds(1f);
         }
 
         internal void SpawnEnemy()
@@ -55,16 +58,24 @@ namespace GamePlay.Enemy
 
         private void CountKilledEnemies(GameObject _) => _gameMaster.KilledEnemy();
 
-        private void HitWall(GameObject target, GameObject enemyObject)
+        private void HitWall(GameObject _, GameObject enemyObject)
         {
+            Destroy(enemyObject);
             BlowUP(enemyObject);
-            _defendedWallObject.HitWallBlowUp();
         }
 
         private void BlowUP(GameObject enemyObject)
         {
-            Debug.LogWarning("BlowUp");
-            Destroy(enemyObject);
+            GameObject gameObjectBlowUp = UnityEngine.Object.Instantiate(_grenade, enemyObject.transform.position, Quaternion.identity);
+            ResultBlowUp(gameObjectBlowUp);
+        }
+
+        private async void  ResultBlowUp(GameObject grenade)
+        {
+            await _waitForSeconds;
+            _defendedWallObject.HitWallBlowUp();
+            await _waitForSeconds;
+            UnityEngine.Object.Destroy(grenade);
         }
         
         private void Destroy(GameObject enemyObject)
